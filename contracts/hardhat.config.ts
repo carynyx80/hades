@@ -31,6 +31,7 @@ const config: HardhatUserConfig = {
   networks: {
     bscTestnet: { url: process.env.BSC_TESTNET_RPC || "https://data-seed-prebsc-1-s1.bnbchain.org:8545", chainId: 97, accounts },
     bsc: { url: process.env.BSC_RPC || "https://bsc-dataseed.bnbchain.org", chainId: 56, accounts },
+    robinhood: { url: process.env.ROBINHOOD_RPC || "https://rpc.mainnet.chain.robinhood.com", chainId: 4663, accounts },
     robinhoodTestnet: { url: process.env.ROBINHOOD_TESTNET_RPC || "https://rpc.testnet.chain.robinhood.com", chainId: 46630, accounts },
   },
 };

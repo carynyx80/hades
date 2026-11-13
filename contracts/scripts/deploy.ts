@@ -18,7 +18,8 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   const { chainId } = await ethers.provider.getNetwork();
   const isLocal = chainId === 31337n;
-  const isMainnet = chainId === 56n;
+  // BNB Smart Chain (56) and Robinhood Chain (4663) mainnets: real funds.
+  const isMainnet = chainId === 56n || chainId === 4663n;
   console.log(`Deploying to ${network.name} (${chainId}) from ${deployer.address}`);
 
   let token = process.env.TOKEN;
