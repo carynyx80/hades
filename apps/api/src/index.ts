@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import { ASSETS, TIMEFRAMES, chains, env, type Asset } from "./config.js";
 import { discoverFeeds, history, latest, poll, priceAt, pricesHealthy } from "./prices.js";
 import { ChainService } from "./chain.js";
+import { accountView, authAddress, faucet, loadPlay, marketsView, newNonce, placeBet, signInMessage, verifySignIn } from "./play.js";
 
 const services = chains().map((c) => new ChainService(c));
 const byId = new Map(services.map((s) => [s.cfg.chainId, s]));
@@ -21,7 +22,7 @@ function send(res: http.ServerResponse, code: number, body: unknown) {
   res.writeHead(code, {
     "content-type": "application/json",
     "access-control-allow-origin": env.corsOrigin,
-    "access-control-allow-headers": "content-type",
+    "access-control-allow-headers": "content-type, authorization",
     "access-control-allow-methods": "GET,POST,OPTIONS",
     "cache-control": "no-store",
   });
@@ -69,7 +70,23 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET") {
       switch (url.pathname) {
         case "/":
-          return send(res, 200, { name: "haze-api", endpoints: ["/health", "/prices", "/rounds?chainId=97", "/chains", "POST /reveal", "POST /relay"] });
+          return send(res, 200, {
+            name: "haze-api",
+            endpoints: ["/health", "/prices", "/rounds", "/chains", "/play/markets", "/play/account", "GET /auth/nonce?address=", "POST /auth/verify", "POST /play/bet", "POST /play/faucet", "POST /reveal", "POST /relay"],
+          });
+        case "/auth/nonce": {
+          const address = url.searchParams.get("address") || "";
+          if (!ethers.isAddress(address)) return send(res, 400, { error: "bad address" });
+          const nonce = newNonce();
+          return send(res, 200, { nonce, message: signInMessage(ethers.getAddress(address), nonce) });
+        }
+        case "/play/markets":
+          return send(res, 200, marketsView());
+        case "/play/account": {
+          const addr = authAddress(req.headers.authorization);
+          if (!addr) return send(res, 401, { error: "sign in" });
+          return send(res, 200, accountView(addr));
+        }
         case "/health": {
           const ok = pricesHealthy();
           return send(res, ok ? 200 : 503, { ok, uptime: Math.round((Date.now() - started) / 1000), chains: services.map((s) => s.status()) });
@@ -84,8 +101,26 @@ const server = http.createServer(async (req, res) => {
       return send(res, 404, { error: "not found" });
     }
     if (req.method === "POST") {
-      if (limited(ip)) return send(res, 429, { error: "slow down" });
+      if (limited(ip, 120)) return send(res, 429, { error: "slow down" });
       const body = await readJson(req);
+      if (url.pathname === "/auth/verify") {
+        try {
+          return send(res, 200, verifySignIn(String(body.address), String(body.nonce), String(body.signature)));
+        } catch (e) {
+          return send(res, 401, { error: (e as Error).message });
+        }
+      }
+      if (url.pathname.startsWith("/play/")) {
+        const addr = authAddress(req.headers.authorization);
+        if (!addr) return send(res, 401, { error: "sign in" });
+        try {
+          if (url.pathname === "/play/bet") return send(res, 200, placeBet(addr, body.asset, body.timeframe, body.side, Number(body.amount)));
+          if (url.pathname === "/play/faucet") return send(res, 200, faucet(addr));
+        } catch (e) {
+          return send(res, 400, { error: (e as Error).message });
+        }
+        return send(res, 404, { error: "not found" });
+      }
       const svc = byId.get(Number(body.chainId));
       if (!svc?.live) return send(res, 400, { error: "chain not deployed" });
       if (url.pathname === "/reveal") {
@@ -110,6 +145,7 @@ const server = http.createServer(async (req, res) => {
 async function main() {
   await discoverFeeds();
   await poll();
+  loadPlay();
   setInterval(poll, 2000);
   setInterval(() => discoverFeeds(), 5 * 60_000);
   const keeperLoop = async () => {
