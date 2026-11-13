@@ -1,0 +1,11 @@
+{
+  "name": "haze",
+  "private": true,
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev -w @haze/web",
+    "build": "npm run build -w @haze/web",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": { "node": ">=22" }
+}
