@@ -1,8 +1,9 @@
 "use client";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, type MotionValue } from "framer-motion";
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Reveal } from "./reveal";
+import { Spotlight, Counter, ScrollText } from "./fx";
 import { TIMEFRAMES, CHAINS, roundAt, fmtCountdown } from "@/lib/markets";
 import { useNow } from "@/lib/use-prices";
 
@@ -21,67 +22,131 @@ const STEPS = [
   { n: "04", t: "Settle and vanish", d: "The oracle settles the round. Winners split the pool and claim to any fresh address, or roll winnings into the next round." },
 ];
 
+export function Statement() {
+  return (
+    <section className="mx-auto max-w-5xl px-4 py-40">
+      <Eyebrow>Why Haze</Eyebrow>
+      <ScrollText
+        className="text-balance text-[clamp(1.8rem,4.4vw,3.6rem)] font-medium leading-[1.12] tracking-[-0.03em]"
+        text="On every other market your bets are public. Whales get copied, winners get front-run, and your history follows your wallet forever. On Haze the market sees liquidity, never people. You stay unseen."
+      />
+    </section>
+  );
+}
+
+function StepCard({ s, i, total, progress }: { s: (typeof STEPS)[number]; i: number; total: number; progress: MotionValue<number> }) {
+  const target = 1 - (total - i) * 0.04;
+  const scale = useTransform(progress, [i / total, 1], [1, target]);
+  return (
+    <div className="sticky top-28 flex h-[70vh] items-start justify-center md:top-32">
+      <motion.div
+        style={{ scale, top: `${i * 28}px` }}
+        className="glass relative flex w-full max-w-4xl origin-top flex-col justify-between overflow-hidden rounded-[32px] p-8 sm:p-12 md:min-h-[380px]"
+      >
+        <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ background: STEP_TINTS[i], opacity: 0.22 }} />
+        <div className="relative flex items-start justify-between gap-6">
+          <span className="font-mono text-sm text-haze">{s.n} / 0{total}</span>
+          <span className="font-serif text-7xl italic leading-none text-white/10 sm:text-9xl">{s.n}</span>
+        </div>
+        <div className="relative mt-10 max-w-xl">
+          <h3 className="text-3xl font-semibold tracking-tight sm:text-5xl">{s.t}</h3>
+          <p className="mt-4 text-lg leading-relaxed text-mist">{s.d}</p>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+const STEP_TINTS = ["#7b5cff", "#3fd0ff", "#ff7ad9", "#5cf2a4"];
+
 export function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 70%", "end 60%"] });
-  const h = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   return (
-    <section id="how" className="mx-auto max-w-6xl px-4 py-32">
-      <Reveal className="max-w-2xl">
+    <section id="how" className="mx-auto max-w-6xl px-4 pt-24">
+      <Reveal className="mx-auto max-w-2xl text-center">
         <Eyebrow>How it works</Eyebrow>
         <H2>Four steps. <span className="font-serif font-normal italic text-mist">Zero trace.</span></H2>
       </Reveal>
-      <div ref={ref} className="relative mt-20 grid gap-6 md:grid-cols-4">
-        <div className="absolute left-0 right-0 top-[27px] hidden h-px bg-line md:block">
-          <motion.div style={{ width: h }} className="h-px bg-gradient-to-r from-haze to-haze-2" />
-        </div>
+      <div ref={ref} className="relative mt-16">
         {STEPS.map((s, i) => (
-          <Reveal key={s.n} delay={i * 0.1}>
-            <div className="relative">
-              <div className="glass relative z-10 mb-6 flex h-14 w-14 items-center justify-center rounded-2xl font-mono text-sm text-haze">{s.n}</div>
-              <h3 className="text-xl font-semibold tracking-tight">{s.t}</h3>
-              <p className="mt-3 text-[15px] leading-relaxed text-mist">{s.d}</p>
-            </div>
-          </Reveal>
+          <StepCard key={s.n} s={s} i={i} total={STEPS.length} progress={scrollYProgress} />
         ))}
       </div>
     </section>
   );
 }
 
+function MarketCard({ tf, now }: { tf: (typeof TIMEFRAMES)[number]; now: number }) {
+  const r = roundAt(tf, now);
+  const prog = now ? (now - r.start) / tf.seconds : 0;
+  return (
+    <Spotlight className="glass h-[420px] w-[78vw] shrink-0 rounded-[32px] p-8 sm:w-[420px]">
+      <div className="relative flex h-full flex-col">
+        <div className="flex items-center justify-between font-mono text-xs text-mist">
+          <span>{Math.round(86400 / tf.seconds)} rounds / day</span>
+          <span className={r.open ? "text-up" : "text-mist"}>{r.open ? "● open" : "○ locked"}</span>
+        </div>
+        <div className="mt-auto">
+          <div className="text-[clamp(5rem,12vw,8rem)] font-semibold leading-none tracking-[-0.06em]">{tf.id}</div>
+          <div className="mt-2 text-mist">{tf.label} rounds · betting closes {tf.cutoff >= 3600 ? `${tf.cutoff / 3600}h` : `${tf.cutoff / 60}m`} before the end</div>
+          <div className="mt-8 h-1 overflow-hidden rounded-full bg-white/5">
+            <div className="h-full bg-gradient-to-r from-haze to-haze-2 transition-[width] duration-1000 ease-linear" style={{ width: `${prog * 100}%` }} />
+          </div>
+          <div className="mt-2 flex justify-between font-mono text-xs text-mist">
+            <span>round #{now ? r.id % 100000 : "—"}</span>
+            <span>{fmtCountdown(r.end - now, now > 0)}</span>
+          </div>
+        </div>
+      </div>
+    </Spotlight>
+  );
+}
+
 export function Markets() {
   const now = useNow();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const x = useTransform(scrollYProgress, [0, 1], ["0%", "-62%"]);
   return (
-    <section id="markets" className="mx-auto max-w-6xl px-4 py-32">
-      <Reveal className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
-        <div className="max-w-2xl">
-          <Eyebrow>Markets</Eyebrow>
-          <H2>Always a round <span className="font-serif font-normal italic text-mist">about to close.</span></H2>
+    <section id="markets" ref={ref} className="relative h-[300vh]">
+      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
+        <div className="mx-auto mb-12 flex w-full max-w-6xl flex-col justify-between gap-6 px-4 md:flex-row md:items-end">
+          <div className="max-w-2xl">
+            <Eyebrow>Markets</Eyebrow>
+            <H2>Always a round <span className="font-serif font-normal italic text-mist">about to close.</span></H2>
+          </div>
+          <p className="max-w-sm text-mist">Four assets, five timeframes: 20 rounds running at all times, aligned to the clock so everyone sees the same countdown.</p>
         </div>
-        <p className="max-w-sm text-mist">Five timeframes on four assets: 20 rounds running at all times, aligned to the clock so everyone sees the same countdown.</p>
-      </Reveal>
-      <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {TIMEFRAMES.map((tf, i) => {
-          const r = roundAt(tf, now);
-          const prog = now ? (now - r.start) / tf.seconds : 0;
-          return (
-            <Reveal key={tf.id} delay={i * 0.08}>
-              <motion.div whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="glass group relative h-full overflow-hidden rounded-3xl p-6">
-                <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-haze/20 blur-3xl transition-opacity duration-500 group-hover:opacity-100 opacity-0" />
-                <div className="font-mono text-xs text-mist">{Math.round(86400 / tf.seconds)} rounds / day</div>
-                <div className="mt-6 text-4xl font-semibold tracking-tight">{tf.id}</div>
-                <div className="mt-1 text-sm text-mist">{tf.label} rounds</div>
-                <div className="mt-8 h-1 overflow-hidden rounded-full bg-white/5">
-                  <div className="h-full bg-gradient-to-r from-haze to-haze-2 transition-[width] duration-1000 ease-linear" style={{ width: `${prog * 100}%` }} />
-                </div>
-                <div className="mt-2 flex justify-between font-mono text-xs">
-                  <span className={r.open ? "text-up" : "text-mist"}>{r.open ? "open" : "locked"}</span>
-                  <span className="text-mist">{fmtCountdown(r.end - now, now > 0)}</span>
-                </div>
-              </motion.div>
-            </Reveal>
-          );
-        })}
+        <motion.div style={{ x }} className="flex gap-5 pl-[max(1rem,calc((100vw-72rem)/2+1rem))]">
+          {TIMEFRAMES.map((tf) => <MarketCard key={tf.id} tf={tf} now={now} />)}
+          <div className="flex h-[420px] w-[78vw] shrink-0 flex-col items-start justify-end rounded-[32px] border border-dashed border-line p-8 sm:w-[420px]">
+            <div className="text-3xl font-semibold tracking-tight">BTC · ETH · BNB · SOL</div>
+            <p className="mt-2 text-mist">Every timeframe, every asset. More markets after launch.</p>
+            <Link href="/app" className="mt-6 rounded-full bg-white px-5 py-2.5 text-sm font-medium text-ink">Open the board</Link>
+          </div>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
+export function Stats() {
+  const items = [
+    { n: 20, s: "", k: "rounds live at all times" },
+    { n: 553, s: "", k: "rounds per asset, every day" },
+    { n: 2, s: "", k: "chains, one app" },
+    { n: 0, s: "", k: "wallets exposed" },
+  ];
+  return (
+    <section className="mx-auto max-w-6xl px-4 py-24">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-[32px] border border-line bg-line md:grid-cols-4">
+        {items.map((it) => (
+          <div key={it.k} className="bg-ink px-6 py-10">
+            <div className="text-5xl font-semibold tracking-[-0.04em] sm:text-6xl"><Counter to={it.n} suffix={it.s} /></div>
+            <div className="mt-2 text-sm text-mist">{it.k}</div>
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -90,8 +155,8 @@ export function Markets() {
 export function Privacy() {
   const rows = [
     { k: "Your wallet", pub: "0x7a3f…c91e", hz: "hidden" },
-    { k: "Your side", pub: "UP", hz: "sealed until close" },
-    { k: "Your stake", pub: "2,500 USDT", hz: "sealed until close" },
+    { k: "Your side", pub: "UP", hz: "sealed until lock" },
+    { k: "Your stake", pub: "2,500 USDT from 0x7a3f…", hz: "an amount, from nobody" },
     { k: "Where winnings go", pub: "same wallet", hz: "any fresh address" },
   ];
   return (
@@ -151,11 +216,10 @@ export function Bento() {
       <div className="grid gap-4 md:grid-cols-3">
         {cards.map((c, i) => (
           <Reveal key={c.t} delay={i * 0.08} className={c.span}>
-            <motion.div whileHover={{ scale: 1.015 }} className="glass group relative h-full min-h-[220px] overflow-hidden rounded-3xl p-8">
-              <div className="absolute inset-0 bg-[radial-gradient(400px_circle_at_var(--x,80%)_0%,rgba(185,166,255,.14),transparent_60%)]" />
+            <Spotlight className="glass h-full min-h-[220px] rounded-3xl p-8">
               <h3 className="relative text-2xl font-semibold tracking-tight">{c.t}</h3>
               <p className="relative mt-3 max-w-md leading-relaxed text-mist">{c.d}</p>
-            </motion.div>
+            </Spotlight>
           </Reveal>
         ))}
       </div>
@@ -187,7 +251,7 @@ export function Chains() {
 }
 
 const FAQS = [
-  { q: "What exactly is private?", a: "Who placed a bet is never visible: bets come from the shielded pool through a relayer. Side and stake are sealed until the round closes, then only the totals matter for payouts." },
+  { q: "What exactly is private?", a: "Who placed a bet is never visible: bets come from the shielded pool through a relayer. Your side is sealed until betting locks. Stake amounts are visible on-chain, but they are not linked to any wallet." },
   { q: "How are winners paid?", a: "Rounds are parimutuel: everyone on the winning side shares the losing side's stakes in proportion to their stake, minus a 2% protocol fee. If one side is empty, every stake is refunded." },
   { q: "Where do prices come from?", a: "Pyth price feeds on both chains, with Chainlink as a cross-check on BNB Chain. The start and end prices are recorded on-chain for every round." },
   { q: "Is it live with real money?", a: "Not yet. Haze launches on testnets first while the contracts and zero-knowledge circuits are audited. Mainnet comes after the audit." },

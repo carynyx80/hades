@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { HazeBackground } from "./haze-bg";
 import { SplitHeading } from "./reveal";
 import { LiveCard } from "./live-card";
+import { Magnetic } from "./fx";
 
 export function Hero() {
   return (
@@ -37,7 +38,7 @@ export function Hero() {
         className="mt-7 max-w-xl text-balance text-lg text-mist"
       >
         Private Up/Down prediction markets on BTC, ETH, BNB and SOL. Rounds every 5 minutes to every day. Zero-knowledge
-        proofs keep your wallet, your side and your size out of sight.
+        proofs keep your wallet out of sight and your side sealed until the round locks.
       </motion.p>
 
       <motion.div
@@ -46,12 +47,16 @@ export function Hero() {
         transition={{ delay: 0.8, duration: 0.8 }}
         className="mt-10 flex flex-col items-center gap-3 sm:flex-row"
       >
-        <Link href="/app" className="ring-glow rounded-full bg-white px-7 py-3.5 font-medium text-ink transition hover:scale-[1.04]">
-          Start predicting
-        </Link>
-        <a href="#how" className="glass rounded-full px-7 py-3.5 font-medium text-white/90 transition hover:bg-white/10">
-          How it works
-        </a>
+        <Magnetic>
+          <Link href="/app" className="ring-glow block rounded-full bg-white px-7 py-3.5 font-medium text-ink transition hover:scale-[1.04]">
+            Start predicting
+          </Link>
+        </Magnetic>
+        <Magnetic>
+          <a href="#how" className="glass block rounded-full px-7 py-3.5 font-medium text-white/90 transition hover:bg-white/10">
+            How it works
+          </a>
+        </Magnetic>
       </motion.div>
 
       <motion.div
