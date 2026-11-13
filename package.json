@@ -1,7 +1,7 @@
 {
   "name": "haze",
   "private": true,
-  "workspaces": ["apps/*"],
+  "workspaces": ["apps/*", "contracts"],
   "scripts": {
     "dev": "npm run dev -w @haze/web",
     "build": "npm run build -w @haze/web",

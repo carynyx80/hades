@@ -1,0 +1,27 @@
+{
+  "name": "@haze/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "deploy": "hardhat run scripts/deploy.ts"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "2.1.0",
+    "@nomicfoundation/hardhat-ethers": "3.1.0",
+    "@nomicfoundation/hardhat-network-helpers": "1.1.0",
+    "@openzeppelin/contracts": "5.4.0",
+    "@types/chai": "4.3.20",
+    "@types/mocha": "10.0.10",
+    "@types/node": "22.20.5",
+    "chai": "4.5.0",
+    "ethers": "6.15.0",
+    "hardhat": "2.26.3",
+    "poseidon-lite": "^0.3.0",
+    "poseidon-solidity": "0.0.5",
+    "solc": "0.8.28",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
+  }
+}
