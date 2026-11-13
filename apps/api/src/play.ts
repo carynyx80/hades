@@ -73,7 +73,7 @@ export function loadPlay() {
   tickRounds();
 }
 
-function save() {
+export function save() {
   if (!dirty) return;
   try {
     fs.mkdirSync(DATA_DIR, { recursive: true });

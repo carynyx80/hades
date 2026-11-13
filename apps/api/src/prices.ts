@@ -108,7 +108,7 @@ async function pollHermes() {
     }
   } catch (e) {
     hermesFailures++;
-    if (hermesFailures === 1 || hermesFailures % 300 === 0) console.warn("hermes unavailable, using fallback prices:", (e as Error).message);
+    if (hermesFailures === 1 || hermesFailures % 300 === 0) console.log("Pyth Hermes unavailable (set HERMES_API_KEY); display prices use Kraken/Coinbase/CoinGecko:", (e as Error).message);
   }
 }
 let hermesFailures = 0;

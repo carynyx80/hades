@@ -3,7 +3,7 @@ import { ethers } from "ethers";
 import { ASSETS, TIMEFRAMES, chains, env, type Asset } from "./config.js";
 import { discoverFeeds, history, latest, poll, priceAt, pricesHealthy } from "./prices.js";
 import { ChainService } from "./chain.js";
-import { accountView, authAddress, faucet, loadPlay, marketsView, newNonce, placeBet, signInMessage, verifySignIn } from "./play.js";
+import { accountView, authAddress, faucet, loadPlay, save as savePlay, marketsView, newNonce, placeBet, signInMessage, verifySignIn } from "./play.js";
 
 const services = chains().map((c) => new ChainService(c));
 const byId = new Map(services.map((s) => [s.cfg.chainId, s]));
@@ -159,3 +159,14 @@ async function main() {
   });
 }
 main();
+
+// Railway sends SIGTERM when replacing a deployment: save play state and exit cleanly.
+for (const sig of ["SIGTERM", "SIGINT"] as const) {
+  process.on(sig, () => {
+    console.log(`${sig} received, saving and shutting down`);
+    savePlay();
+    server.close(() => process.exit(0));
+    setTimeout(() => process.exit(0), 3000).unref();
+  });
+}
+process.on("unhandledRejection", (e) => console.error("unhandled rejection", e));

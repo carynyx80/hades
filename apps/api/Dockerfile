@@ -7,4 +7,5 @@ COPY tsconfig.json ./
 COPY src ./src
 ENV DATA_DIR=/data
 EXPOSE 8787
-CMD ["npx", "tsx", "src/index.ts"]
+# Run node directly (not via npm/npx) so SIGTERM reaches the app and shutdowns are clean.
+CMD ["node", "--import", "tsx", "src/index.ts"]
