@@ -78,7 +78,16 @@ async function fallback(missing: Asset[]) {
   }
 }
 
+const fake: Record<Asset, number> = { BTC: 98_000, ETH: 3_600, BNB: 700, SOL: 210 };
+
 export async function poll() {
+  if (process.env.FAKE_PRICES === "1") {
+    // Local development only: random walk when no price source is reachable.
+    const now = Math.floor(Date.now() / 1000);
+    for (const a of ASSETS) { fake[a] *= 1 + (Math.random() - 0.5) * 0.002; record(a, fake[a], now); }
+    lastOk = Date.now();
+    return;
+  }
   await pollHermes();
   const fresh = (a: Asset) => latest[a] && Date.now() / 1000 - latest[a]!.publishTime < 15;
   const missing = ASSETS.filter((a) => !fresh(a));
