@@ -26,6 +26,7 @@ contract HazePool is ReentrancyGuard, AccessControl {
     uint256 public constant FIELD = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
     uint8 public constant DEPTH = 20;
     uint8 public constant ROOT_HISTORY = 100;
+    uint256 public constant LOCKED = 2 ** 128 - 1;
 
     IERC20 public immutable token;
     HazeRounds public immutable rounds;
@@ -48,6 +49,7 @@ contract HazePool is ReentrancyGuard, AccessControl {
     error TreeFull();
     error BadAmount();
     error FieldOverflow();
+    error PoolLocked();
 
     event NoteAdded(uint256 indexed commitment, uint32 leafIndex, uint256 root);
     event Deposit(uint256 indexed commitment, uint256 amount);
@@ -122,6 +124,7 @@ contract HazePool is ReentrancyGuard, AccessControl {
 
     /// @notice Deposit `amount` as a new note. `inner = Poseidon(secret, nullifier)` is computed in the browser.
     function deposit(uint256 amount, uint256 inner) external nonReentrant {
+        if (minDeposit == LOCKED) revert PoolLocked();
         if (amount < minDeposit || amount >= 2 ** 128) revert BadAmount();
         if (inner >= FIELD) revert FieldOverflow();
         token.safeTransferFrom(msg.sender, address(this), amount);
@@ -203,7 +206,9 @@ contract HazePool is ReentrancyGuard, AccessControl {
         token.safeTransfer(to, rounds.takeFees());
     }
 
+    /// @notice Pools deployed locked (minDeposit = 2^128 - 1, e.g. with placeholder verifiers) can never be opened.
     function setMinDeposit(uint256 v) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (minDeposit == LOCKED) revert PoolLocked();
         minDeposit = v;
     }
 }

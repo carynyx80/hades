@@ -13,6 +13,9 @@ import path from "path";
  *   FEED_BTC/ETH/BNB/SOL   Pyth feed ids (required with PYTH)
  *   SPEND_VERIFIER, CLAIM_VERIFIER  generated Noir verifiers (see circuits/README.md)
  *   ALLOW_MOCK_VERIFIER=1  testnet-only: deploy accept-all mock verifiers (NO PRIVACY OR SAFETY; demo only)
+ *   LOCKED=1               placeholder deployment: deposits are impossible (minDeposit = 2^128 - 1), so the pool can
+ *                          never hold funds. Allows mock verifiers and the signed oracle on mainnet. A locked
+ *                          deployment can never be unlocked safely: real launches are a fresh deployment.
  */
 async function main() {
   const [deployer] = await ethers.getSigners();
@@ -20,6 +23,8 @@ async function main() {
   const isLocal = chainId === 31337n;
   // BNB Smart Chain (56) and Robinhood Chain (4663) mainnets: real funds.
   const isMainnet = chainId === 56n || chainId === 4663n;
+  const locked = process.env.LOCKED === "1";
+  if (locked) console.warn("LOCKED deployment: deposits disabled; this deployment can never hold funds.");
   console.log(`Deploying to ${network.name} (${chainId}) from ${deployer.address}`);
 
   let token = process.env.TOKEN;
@@ -42,7 +47,7 @@ async function main() {
       feeds[a] = f;
     }
   } else {
-    if (isMainnet) throw new Error("PYTH is required on mainnet");
+    if (isMainnet && !locked) throw new Error("PYTH is required on mainnet");
     const o = await ethers.deployContract("SignedPriceOracle", [deployer.address, process.env.KEEPER_ADDRESS || deployer.address]);
     oracle = await o.getAddress();
     for (const a of assets) feeds[a] = ethers.id(`${a}/USD`);
@@ -54,7 +59,7 @@ async function main() {
   let mockVerifiers = false;
   if (!spendV || !claimV) {
     if (!isLocal && process.env.ALLOW_MOCK_VERIFIER !== "1") throw new Error("SPEND_VERIFIER and CLAIM_VERIFIER are required");
-    if (isMainnet) throw new Error("mock verifiers are never allowed on mainnet");
+    if (isMainnet && !locked) throw new Error("mock verifiers are only allowed on mainnet in a LOCKED deployment");
     spendV = await (await ethers.deployContract("MockVerifier")).getAddress();
     claimV = await (await ethers.deployContract("MockVerifier")).getAddress();
     mockVerifiers = true;
@@ -66,7 +71,8 @@ async function main() {
   const Pool = await ethers.getContractFactory("HazePool", {
     libraries: { "poseidon-solidity/PoseidonT3.sol:PoseidonT3": await poseidon.getAddress() },
   });
-  const pool = await Pool.deploy(deployer.address, token, await rounds.getAddress(), spendV, claimV, 1_000_000n);
+  const minDeposit = locked ? 2n ** 128n - 1n : BigInt(process.env.MIN_DEPOSIT || "1000000");
+  const pool = await Pool.deploy(deployer.address, token, await rounds.getAddress(), spendV, claimV, minDeposit);
   await pool.waitForDeployment();
   await (await rounds.setPool(await pool.getAddress())).wait();
   for (const [i, a] of assets.entries()) await (await rounds.setFeed(i, feeds[a])).wait();
@@ -82,6 +88,8 @@ async function main() {
     spendVerifier: spendV,
     claimVerifier: claimV,
     mockVerifiers,
+    locked,
+    minDeposit: minDeposit.toString(),
     feeds,
     block: await ethers.provider.getBlockNumber(),
   };

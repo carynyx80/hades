@@ -215,6 +215,20 @@ describe("Pool spends", () => {
   });
 });
 
+describe("Locked pool", () => {
+  it("never accepts deposits and cannot be unlocked", async () => {
+    const c = await deploy();
+    const Pool = await ethers.getContractFactory("HazePool", {
+      libraries: { "poseidon-solidity/PoseidonT3.sol:PoseidonT3": await (await ethers.deployContract("PoseidonT3")).getAddress() },
+    });
+    const locked = await Pool.deploy(c.admin.address, await c.usd.getAddress(), await c.rounds.getAddress(), ethers.ZeroAddress, ethers.ZeroAddress, 2n ** 128n - 1n);
+    await c.usd.connect(c.alice).approve(await locked.getAddress(), ethers.MaxUint256);
+    await expect(locked.connect(c.alice).deposit(USD(100), 1n)).to.be.revertedWithCustomError(locked, "PoolLocked");
+    await expect(locked.connect(c.alice).deposit(2n ** 128n - 1n, 1n)).to.be.revertedWithCustomError(locked, "PoolLocked");
+    await expect(locked.setMinDeposit(1n)).to.be.revertedWithCustomError(locked, "PoolLocked");
+  });
+});
+
 describe("SignedPriceOracle", () => {
   it("accepts a signer's price once and rejects others", async () => {
     const [owner, signer, other] = await ethers.getSigners();
