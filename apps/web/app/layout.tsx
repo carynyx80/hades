@@ -4,8 +4,11 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://haze-lake.vercel.app"),
   title: "Primar — First privacy prediction platform on BNB and Robinhood Chain",
   description: "Primar is the first privacy prediction platform on BNB Chain and Robinhood Chain. Call the move. Stay unseen.",
+  openGraph: { title: "Primar", description: "The first privacy prediction platform on BNB Chain and Robinhood Chain.", siteName: "Primar", type: "website" },
+  twitter: { card: "summary_large_image", title: "Primar", description: "The first privacy prediction platform on BNB Chain and Robinhood Chain." },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

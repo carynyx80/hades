@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, type MotionValue } from "framer-motion
 import { useRef, useState } from "react";
 import Link from "next/link";
 import { Reveal } from "./reveal";
+import { Logo } from "./logo";
 import { Spotlight, Counter, ScrollText } from "./fx";
 import { TIMEFRAMES, CHAINS, roundAt, fmtCountdown } from "@/lib/markets";
 import { useNow } from "@/lib/use-prices";
@@ -303,7 +304,7 @@ export function Footer() {
   return (
     <footer className="border-t border-line px-4 py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 text-sm text-mist md:flex-row">
-        <span>© {new Date().getFullYear()} Primar. Testnet software. Not available where prohibited.</span>
+        <span className="flex items-center gap-3"><Logo /><span>© {new Date().getFullYear()} Primar. Not available where prohibited.</span></span>
         <div className="flex gap-6">
           <a href="#how" className="hover:text-white">How it works</a>
           <a href="#faq" className="hover:text-white">FAQ</a>
