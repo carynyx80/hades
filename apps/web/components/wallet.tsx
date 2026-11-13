@@ -107,7 +107,7 @@ export function ConnectButton() {
                     key={c.uid}
                     disabled={isPending}
                     onClick={() => connect({ connector: c })}
-                    className="flex w-full items-center gap-3 rounded-2xl border border-line bg-white/[0.03] px-4 py-3 text-left transition hover:border-haze/40 hover:bg-white/[0.06] disabled:opacity-50"
+                    className="flex w-full items-center gap-3 rounded-2xl border border-line bg-white/[0.03] px-4 py-3 text-left transition hover:border-accent/40 hover:bg-white/[0.06] disabled:opacity-50"
                   >
                     {c.icon ? <img src={c.icon} alt="" className="h-7 w-7 rounded-lg" /> : <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/10 text-xs">{c.name[0]}</span>}
                     <span className="font-medium">{c.id === "injected" ? "Browser wallet" : c.name}</span>

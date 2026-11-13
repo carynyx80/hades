@@ -4,8 +4,8 @@ import { GeistMono } from "geist/font/mono";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Haze — Private prediction markets",
-  description: "Call the move. Stay unseen. Private Up/Down markets on BNB Chain and Robinhood Chain.",
+  title: "Primar — First privacy prediction platform on BNB and Robinhood Chain",
+  description: "Primar is the first privacy prediction platform on BNB Chain and Robinhood Chain. Call the move. Stay unseen.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

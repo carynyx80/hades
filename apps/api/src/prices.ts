@@ -41,7 +41,7 @@ function record(a: Asset, price: number, publishTime: number) {
 }
 
 async function getJson<T>(url: string): Promise<T> {
-  const r = await fetch(url, { signal: AbortSignal.timeout(6000), headers: { "user-agent": "haze-api" } });
+  const r = await fetch(url, { signal: AbortSignal.timeout(6000), headers: { "user-agent": "primar-api" } });
   if (!r.ok) throw new Error(`${new URL(url).host} ${r.status}`);
   return (await r.json()) as T;
 }

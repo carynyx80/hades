@@ -1,8 +1,8 @@
 "use client";
 import { motion, useScroll, useTransform } from "framer-motion";
 
-/** Drifting blurred orbs: the "haze". */
-export function HazeBackground() {
+/** Drifting blurred orbs behind the hero. */
+export function AuraBackground() {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 800], [0, 200]);
   const o = useTransform(scrollY, [0, 700], [1, 0.25]);

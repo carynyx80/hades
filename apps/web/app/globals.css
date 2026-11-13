@@ -5,8 +5,8 @@
   --color-ink-2: #0d0d14;
   --color-line: rgba(255, 255, 255, 0.08);
   --color-mist: #a9a9bd;
-  --color-haze: #b9a6ff;
-  --color-haze-2: #7de3ff;
+  --color-accent: #b9a6ff;
+  --color-accent-2: #7de3ff;
   --color-up: #5cf2a4;
   --color-down: #ff6b8b;
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;

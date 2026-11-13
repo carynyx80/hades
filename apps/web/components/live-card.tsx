@@ -36,7 +36,7 @@ export function LiveCard() {
             ))}
           </div>
           <div className="flex items-center gap-2 font-mono text-xs text-mist">
-            <span className={`h-1.5 w-1.5 rounded-full ${p.live ? "bg-up" : "bg-haze"}`} />
+            <span className={`h-1.5 w-1.5 rounded-full ${p.live ? "bg-up" : "bg-accent"}`} />
             {p.live ? "Live prices" : "Demo feed"} · {tf.label} round #{now ? r.id % 100000 : "—"}
           </div>
         </div>
@@ -59,7 +59,7 @@ export function LiveCard() {
         </div>
 
         <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-white/5">
-          <motion.div className="h-full rounded-full bg-gradient-to-r from-haze to-haze-2" animate={{ width: `${progress * 100}%` }} transition={{ ease: "linear", duration: 1 }} />
+          <motion.div className="h-full rounded-full bg-gradient-to-r from-accent to-accent-2" animate={{ width: `${progress * 100}%` }} transition={{ ease: "linear", duration: 1 }} />
         </div>
         <div className="mt-2 flex justify-between font-mono text-xs text-mist">
           <span>{r.open ? "Betting open" : "Locked — waiting for close"}</span>

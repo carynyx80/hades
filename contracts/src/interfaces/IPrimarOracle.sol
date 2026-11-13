@@ -2,7 +2,7 @@
 pragma solidity 0.8.28;
 
 /// @notice Returns an asset's price at an exact past timestamp, proven by `data` (e.g. a Pyth update).
-interface IHazeOracle {
+interface IPrimarOracle {
     /// @return price the price scaled to 8 decimals
     function priceAt(bytes32 feedId, uint64 timestamp, bytes calldata data) external payable returns (int256 price);
 

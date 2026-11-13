@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IHazeOracle} from "../interfaces/IHazeOracle.sol";
+import {IPrimarOracle} from "../interfaces/IPrimarOracle.sol";
 
 /// @dev Minimal subset of Pyth's IPyth.
 interface IPyth {
@@ -16,7 +16,7 @@ interface IPyth {
 /// @notice Reads the first Pyth price published at or just after `timestamp` (within `maxDelay`), from an update the
 ///         caller fetched from Hermes. `parsePriceFeedUpdatesUnique` guarantees no earlier update exists in the window,
 ///         so the price for a given timestamp is unique and cannot be cherry-picked.
-contract PythOracle is IHazeOracle {
+contract PythOracle is IPrimarOracle {
     IPyth public immutable pyth;
     uint64 public immutable maxDelay;
 

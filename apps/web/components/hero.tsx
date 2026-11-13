@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { HazeBackground } from "./haze-bg";
+import { AuraBackground } from "./aura-bg";
 import { SplitHeading } from "./reveal";
 import { LiveCard } from "./live-card";
 import { Magnetic } from "./fx";
@@ -9,7 +9,7 @@ import { Magnetic } from "./fx";
 export function Hero() {
   return (
     <section className="relative isolate flex min-h-[100svh] flex-col items-center px-4 pt-36 pb-20 text-center">
-      <HazeBackground />
+      <AuraBackground />
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -20,7 +20,7 @@ export function Hero() {
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-up opacity-75" />
           <span className="relative inline-flex h-2 w-2 rounded-full bg-up" />
         </span>
-        Launching on BNB Chain &amp; Robinhood Chain testnets
+        The first privacy prediction platform on BNB Chain &amp; Robinhood Chain
       </motion.div>
 
       <h1 className="max-w-5xl text-[clamp(2.8rem,8vw,6.8rem)] font-semibold leading-[0.95] tracking-[-0.045em]">

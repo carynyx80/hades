@@ -2,15 +2,15 @@
 pragma solidity 0.8.28;
 
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
-import {IHazeOracle} from "./interfaces/IHazeOracle.sol";
+import {IPrimarOracle} from "./interfaces/IPrimarOracle.sol";
 
-/// @title HazeRounds
+/// @title PrimarRounds
 /// @notice Parimutuel Up/Down rounds on asset prices, aligned to Unix time. Round `id` of timeframe `tf` runs from
 ///         `id * tf` to `(id + 1) * tf`. Bets arrive only through the shielded pool, with the side sealed as
 ///         `keccak256(side, salt)`. After betting locks, sides are revealed (by the bettor or a keeper they gave the
 ///         salt to); unrevealed stakes are forfeited to the winners, so hiding a losing bet never pays.
 /// @dev Holds no tokens: the pool holds funds and asks this contract how much each bet is owed.
-contract HazeRounds is AccessControl {
+contract PrimarRounds is AccessControl {
     bytes32 public constant CONFIG_ROLE = keccak256("CONFIG_ROLE");
 
     uint8 public constant SEALED = 0;
@@ -47,7 +47,7 @@ contract HazeRounds is AccessControl {
         bytes32 claimHash;
     }
 
-    IHazeOracle public oracle;
+    IPrimarOracle public oracle;
     address public pool;
     mapping(uint8 => bytes32) public feeds; // asset id → oracle feed id
     mapping(uint32 => uint32) public cutoff; // timeframe seconds → betting closes this long before the end
@@ -74,7 +74,7 @@ contract HazeRounds is AccessControl {
     event RoundSettled(bytes32 indexed roundKey, uint8 asset, uint32 tf, uint64 roundId, int256 startPrice, int256 endPrice, uint8 outcome);
     event BetClaimed(uint256 indexed betId, uint256 payout);
 
-    constructor(address admin, IHazeOracle oracle_) {
+    constructor(address admin, IPrimarOracle oracle_) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         _grantRole(CONFIG_ROLE, admin);
         oracle = oracle_;

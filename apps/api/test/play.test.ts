@@ -4,7 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { ethers } from "ethers";
 
-process.env.DATA_DIR = path.join(os.tmpdir(), `haze-play-${Date.now()}`);
+process.env.DATA_DIR = path.join(os.tmpdir(), `primar-play-${Date.now()}`);
 process.env.SESSION_SECRET = "test";
 const { history, latest } = await import("../src/prices.js");
 const play = await import("../src/play.js");

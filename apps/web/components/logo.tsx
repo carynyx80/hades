@@ -12,7 +12,7 @@ export function Logo({ className = "" }: { className?: string }) {
         <path d="M4 17c4-3 8-3 12 0s8 3 12 0" stroke="url(#hz)" strokeWidth="2.6" fill="none" strokeLinecap="round" opacity=".7" />
         <path d="M4 23c4-3 8-3 12 0s8 3 12 0" stroke="url(#hz)" strokeWidth="2.6" fill="none" strokeLinecap="round" opacity=".4" />
       </svg>
-      <span className="text-[19px] font-semibold tracking-tight">haze</span>
+      <span className="text-[19px] font-semibold tracking-tight">primar</span>
     </span>
   );
 }

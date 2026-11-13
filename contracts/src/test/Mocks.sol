@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IHazeOracle} from "../interfaces/IHazeOracle.sol";
+import {IPrimarOracle} from "../interfaces/IPrimarOracle.sol";
 import {IVerifier} from "../interfaces/IVerifier.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -13,7 +13,7 @@ contract MockVerifier is IVerifier {
 }
 
 /// @dev TEST ONLY. Prices set directly.
-contract MockOracle is IHazeOracle {
+contract MockOracle is IPrimarOracle {
     mapping(bytes32 => mapping(uint64 => int256)) public prices;
     function set(bytes32 feed, uint64 t, int256 p) external { prices[feed][t] = p; }
     function fee(bytes calldata) external pure returns (uint256) { return 0; }
@@ -25,7 +25,7 @@ contract MockOracle is IHazeOracle {
 
 /// @dev Testnet faucet stablecoin (no value).
 contract TestUSD is ERC20 {
-    constructor() ERC20("Haze Test USD", "tUSD") {}
+    constructor() ERC20("Primar Test USD", "tUSD") {}
     function decimals() public pure override returns (uint8) { return 6; }
     function faucet() external { _mint(msg.sender, 1_000e6); }
     function mint(address to, uint256 a) external { _mint(to, a); }

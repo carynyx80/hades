@@ -71,7 +71,7 @@ const server = http.createServer(async (req, res) => {
       switch (url.pathname) {
         case "/":
           return send(res, 200, {
-            name: "haze-api",
+            name: "primar-api",
             endpoints: ["/health", "/prices", "/rounds", "/chains", "/play/markets", "/play/account", "GET /auth/nonce?address=", "POST /auth/verify", "POST /play/bet", "POST /play/faucet", "POST /reveal", "POST /relay"],
           });
         case "/auth/nonce": {
@@ -154,7 +154,7 @@ async function main() {
   };
   keeperLoop();
   server.listen(env.port, () => {
-    console.log(`haze-api on :${env.port}`);
+    console.log(`primar-api on :${env.port}`);
     for (const s of services) console.log(" ", JSON.stringify(s.status()));
   });
 }

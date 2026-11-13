@@ -7,7 +7,7 @@ import { history, latest } from "./prices.js";
 
 /**
  * Play mode: real Up/Down rounds on live prices, settled by the server, with free credits per wallet.
- * Runs until the on-chain contracts are live. Same rules as HazeRounds: parimutuel, 2% fee on the losing side,
+ * Runs until the on-chain contracts are live. Same rules as PrimarRounds: parimutuel, 2% fee on the losing side,
  * flat or one-sided rounds refund, betting closes `cutoff` seconds before the end.
  */
 
@@ -173,7 +173,7 @@ export function newNonce() {
 }
 
 export function signInMessage(address: string, nonce: string) {
-  return `Sign in to Haze\n\nThis signature proves you own this wallet. It costs nothing and sends no transaction.\n\nAddress: ${address}\nNonce: ${nonce}`;
+  return `Sign in to Primar\n\nThis signature proves you own this wallet. It costs nothing and sends no transaction.\n\nAddress: ${address}\nNonce: ${nonce}`;
 }
 
 function hmac(s: string) {

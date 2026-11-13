@@ -45,7 +45,7 @@ export function useMarkets(ms = 2000) {
   return { markets, error };
 }
 
-const KEY = (a: string) => `haze-session-${a.toLowerCase()}`;
+const KEY = (a: string) => `primar-session-${a.toLowerCase()}`;
 
 /** Wallet session: sign a free message once, then bet with the returned token. */
 export function useSession() {

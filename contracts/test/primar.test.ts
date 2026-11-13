@@ -16,7 +16,7 @@ class Tree {
   zeros: bigint[] = [];
   leaves: bigint[] = [];
   constructor(public depth = 20) {
-    let z = BigInt(ethers.keccak256(ethers.toUtf8Bytes("haze"))) % FIELD;
+    let z = BigInt(ethers.keccak256(ethers.toUtf8Bytes("primar"))) % FIELD;
     for (let i = 0; i < depth; i++) {
       this.zeros.push(z);
       z = poseidon2([z, z]);
@@ -42,8 +42,8 @@ async function deploy() {
   const spendV = await ethers.deployContract("MockVerifier");
   const claimV = await ethers.deployContract("MockVerifier");
   const poseidon = await ethers.deployContract("PoseidonT3");
-  const rounds = await ethers.deployContract("HazeRounds", [admin.address, await oracle.getAddress()]);
-  const Pool = await ethers.getContractFactory("HazePool", {
+  const rounds = await ethers.deployContract("PrimarRounds", [admin.address, await oracle.getAddress()]);
+  const Pool = await ethers.getContractFactory("PrimarPool", {
     libraries: { "poseidon-solidity/PoseidonT3.sol:PoseidonT3": await poseidon.getAddress() },
   });
   const pool = await Pool.deploy(admin.address, await usd.getAddress(), await rounds.getAddress(), await spendV.getAddress(), await claimV.getAddress(), USD(1));
@@ -81,7 +81,7 @@ async function placeBet(c: Ctx, id: bigint, amount: bigint, side: 1 | 2) {
   return { betId: ev!.args.betId as bigint, salt, side };
 }
 
-describe("HazePool tree", () => {
+describe("PrimarPool tree", () => {
   it("matches an independent Poseidon Merkle tree after each deposit", async () => {
     const c = await deploy();
     const t = new Tree();
@@ -218,7 +218,7 @@ describe("Pool spends", () => {
 describe("Locked pool", () => {
   it("never accepts deposits and cannot be unlocked", async () => {
     const c = await deploy();
-    const Pool = await ethers.getContractFactory("HazePool", {
+    const Pool = await ethers.getContractFactory("PrimarPool", {
       libraries: { "poseidon-solidity/PoseidonT3.sol:PoseidonT3": await (await ethers.deployContract("PoseidonT3")).getAddress() },
     });
     const locked = await Pool.deploy(c.admin.address, await c.usd.getAddress(), await c.rounds.getAddress(), ethers.ZeroAddress, ethers.ZeroAddress, 2n ** 128n - 1n);

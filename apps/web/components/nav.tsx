@@ -32,7 +32,7 @@ export function Nav() {
           className="group relative overflow-hidden rounded-full bg-white px-4 py-2 text-sm font-medium text-ink transition hover:scale-[1.03]"
         >
           <span className="relative z-10">Launch app</span>
-          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-haze to-haze-2 transition-transform duration-500 group-hover:translate-x-0" />
+          <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-accent to-accent-2 transition-transform duration-500 group-hover:translate-x-0" />
         </Link>
       </nav>
     </motion.header>

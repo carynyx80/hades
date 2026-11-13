@@ -13,7 +13,7 @@ function initial(): PriceMap {
   ) as PriceMap;
 }
 
-/** Live prices from Pyth Hermes (the oracle Haze settles against). Falls back to a gentle random walk offline. */
+/** Live prices from Pyth Hermes (the oracle Primar settles against). Falls back to a gentle random walk offline. */
 export function usePrices(intervalMs = 2000) {
   const [prices, setPrices] = useState<PriceMap>(initial);
   const ids = useRef<Partial<Record<AssetSymbol, string>>>({});

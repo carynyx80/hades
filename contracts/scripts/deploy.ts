@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 
 /**
- * Deploys Haze to the selected network and writes deployments/<chainId>.json.
+ * Deploys Primar to the selected network and writes deployments/<chainId>.json.
  *
  * Env:
  *   DEPLOYER_PRIVATE_KEY   deployer (becomes admin)
@@ -67,8 +67,8 @@ async function main() {
   }
 
   const poseidon = await ethers.deployContract("PoseidonT3");
-  const rounds = await ethers.deployContract("HazeRounds", [deployer.address, oracle]);
-  const Pool = await ethers.getContractFactory("HazePool", {
+  const rounds = await ethers.deployContract("PrimarRounds", [deployer.address, oracle]);
+  const Pool = await ethers.getContractFactory("PrimarPool", {
     libraries: { "poseidon-solidity/PoseidonT3.sol:PoseidonT3": await poseidon.getAddress() },
   });
   const minDeposit = locked ? 2n ** 128n - 1n : BigInt(process.env.MIN_DEPOSIT || "1000000");

@@ -78,7 +78,7 @@ function Word({ children, progress, range }: { children: string; progress: Motio
   const opacity = useTransform(progress, range, [0.12, 1]);
   const blur = useTransform(progress, range, [4, 0]);
   const filter = useTransform(blur, (b) => `blur(${b}px)`);
-  const accent = /^(unseen|invisible|haze\.?|nobody|you\.?)$/i.test(children);
+  const accent = /^(unseen|invisible|primar\.?|nobody|you\.?)$/i.test(children);
   return (
     <motion.span style={{ opacity, filter }} className={`mr-[0.25em] inline-block ${accent ? "font-serif italic text-gradient" : ""}`}>
       {children}

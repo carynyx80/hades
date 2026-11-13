@@ -104,7 +104,7 @@ export function Trade() {
       </header>
 
       <div className="mx-auto max-w-7xl px-4 pt-4">
-        <div className="rounded-xl border border-haze/20 bg-haze/5 px-4 py-2 text-center text-xs text-haze">
+        <div className="rounded-xl border border-accent/20 bg-accent/5 px-4 py-2 text-center text-xs text-accent">
           Play mode: rounds settle on live prices, but bets use free credits, not real money. On-chain markets are coming.
           {error && <span className="text-down"> · Market server unreachable: {error}</span>}
         </div>
@@ -158,7 +158,7 @@ export function Trade() {
             <div className="mt-6 overflow-hidden"><Sparkline data={p.history} up={(delta ?? 0) >= 0} w={900} h={170} fluid /></div>
             <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <Stat k="Round" v={m ? `#${m.roundId % 100000}` : "—"} />
-              <Stat k={open ? "Betting closes" : "Round ends"} v={m ? fmtCountdown((open ? m.lockAt : m.end) - now, now > 0) : "--:--"} accent={open ? "text-up" : "text-haze"} />
+              <Stat k={open ? "Betting closes" : "Round ends"} v={m ? fmtCountdown((open ? m.lockAt : m.end) - now, now > 0) : "--:--"} accent={open ? "text-up" : "text-accent"} />
               <Stat k="UP pool" v={up.toFixed(0)} accent="text-up" />
               <Stat k="DOWN pool" v={down.toFixed(0)} accent="text-down" />
             </div>
@@ -186,7 +186,7 @@ export function Trade() {
 
         <aside className="space-y-5 lg:sticky lg:top-20 lg:self-start">
           <div className="glass relative overflow-hidden rounded-3xl p-6">
-            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-haze/25 blur-3xl" />
+            <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-accent/25 blur-3xl" />
             <div className="relative text-sm text-mist">Play credits</div>
             <div className="relative mt-1 font-mono text-3xl">{s.signedIn && s.account ? balance.toFixed(2) : "—"}</div>
             {s.account && (
@@ -215,7 +215,7 @@ export function Trade() {
               ))}
             </div>
             <label className="mt-5 block text-xs text-mist">Stake (credits, 1–500)</label>
-            <div className="mt-1.5 flex items-center rounded-2xl border border-line bg-white/[0.03] px-4 focus-within:border-haze/50">
+            <div className="mt-1.5 flex items-center rounded-2xl border border-line bg-white/[0.03] px-4 focus-within:border-accent/50">
               <input value={amount} onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ""))} inputMode="decimal"
                 className="w-full bg-transparent py-3.5 font-mono text-lg outline-none" />
             </div>
@@ -284,7 +284,7 @@ function Bets({ s, markets, now }: { s: ReturnType<typeof useSession>; markets: 
                   {b.status === "OPEN" ? (
                     <span className="flex items-center gap-2 font-mono text-xs">
                       {live && <span className={live === b.side ? "text-up" : "text-down"}>{live === b.side ? "winning" : "losing"}</span>}
-                      <span className="text-haze">{fmtCountdown(end - now, now > 0)}</span>
+                      <span className="text-accent">{fmtCountdown(end - now, now > 0)}</span>
                     </span>
                   ) : (
                     <span className={`font-mono text-xs ${b.status === "WON" ? "text-up" : b.status === "LOST" ? "text-down" : "text-mist"}`}>

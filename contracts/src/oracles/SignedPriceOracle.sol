@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.28;
 
-import {IHazeOracle} from "../interfaces/IHazeOracle.sol";
+import {IPrimarOracle} from "../interfaces/IPrimarOracle.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 import {Ownable2Step, Ownable} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 
 /// @title SignedPriceOracle
-/// @notice Fallback for chains without Pyth: prices signed by an allowlisted signer (the Haze keeper). Weaker trust
+/// @notice Fallback for chains without Pyth: prices signed by an allowlisted signer (the Primar keeper). Weaker trust
 ///         than Pyth; the first price stored for a (feed, timestamp) is final.
-contract SignedPriceOracle is IHazeOracle, Ownable2Step {
+contract SignedPriceOracle is IPrimarOracle, Ownable2Step {
     mapping(address => bool) public signers;
     mapping(bytes32 => mapping(uint64 => int256)) public stored;
 

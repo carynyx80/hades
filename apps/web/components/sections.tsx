@@ -8,7 +8,7 @@ import { TIMEFRAMES, CHAINS, roundAt, fmtCountdown } from "@/lib/markets";
 import { useNow } from "@/lib/use-prices";
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
-  return <div className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-haze">{children}</div>;
+  return <div className="mb-4 font-mono text-xs uppercase tracking-[0.2em] text-accent">{children}</div>;
 }
 
 function H2({ children }: { children: React.ReactNode }) {
@@ -16,7 +16,7 @@ function H2({ children }: { children: React.ReactNode }) {
 }
 
 const STEPS = [
-  { n: "01", t: "Deposit into the haze", d: "Move USDT or USDG into the shielded pool. You get a secret note that only your device holds. Every deposit looks identical." },
+  { n: "01", t: "Deposit privately", d: "Move USDT or USDG into the shielded pool. You get a secret note that only your device holds. Every deposit looks identical." },
   { n: "02", t: "Pick a round", d: "BTC, ETH, BNB or SOL. 5 minutes, 10, 15, an hour or a day. Will the price close higher or lower?" },
   { n: "03", t: "Bet with a proof", d: "Your browser proves you own funds in the pool without saying which. A relayer submits it, so your wallet never appears." },
   { n: "04", t: "Settle and vanish", d: "The oracle settles the round. Winners split the pool and claim to any fresh address, or roll winnings into the next round." },
@@ -25,10 +25,10 @@ const STEPS = [
 export function Statement() {
   return (
     <section className="mx-auto max-w-5xl px-4 py-40">
-      <Eyebrow>Why Haze</Eyebrow>
+      <Eyebrow>Why Primar</Eyebrow>
       <ScrollText
         className="text-balance text-[clamp(1.8rem,4.4vw,3.6rem)] font-medium leading-[1.12] tracking-[-0.03em]"
-        text="On every other market your bets are public. Whales get copied, winners get front-run, and your history follows your wallet forever. On Haze the market sees liquidity, never people. You stay unseen."
+        text="On every other market your bets are public. Whales get copied, winners get front-run, and your history follows your wallet forever. On Primar the market sees liquidity, never people. You stay unseen."
       />
     </section>
   );
@@ -45,7 +45,7 @@ function StepCard({ s, i, total, progress }: { s: (typeof STEPS)[number]; i: num
       >
         <div className="absolute -right-24 -top-24 h-72 w-72 rounded-full blur-3xl" style={{ background: STEP_TINTS[i], opacity: 0.22 }} />
         <div className="relative flex items-start justify-between gap-6">
-          <span className="font-mono text-sm text-haze">{s.n} / 0{total}</span>
+          <span className="font-mono text-sm text-accent">{s.n} / 0{total}</span>
           <span className="font-serif text-7xl italic leading-none text-white/10 sm:text-9xl">{s.n}</span>
         </div>
         <div className="relative mt-10 max-w-xl">
@@ -91,7 +91,7 @@ function MarketCard({ tf, now }: { tf: (typeof TIMEFRAMES)[number]; now: number 
           <div className="text-[clamp(5rem,12vw,8rem)] font-semibold leading-none tracking-[-0.06em]">{tf.id}</div>
           <div className="mt-2 text-mist">{tf.label} rounds · betting closes {tf.cutoff >= 3600 ? `${tf.cutoff / 3600}h` : `${tf.cutoff / 60}m`} before the end</div>
           <div className="mt-8 h-1 overflow-hidden rounded-full bg-white/5">
-            <div className="h-full bg-gradient-to-r from-haze to-haze-2 transition-[width] duration-1000 ease-linear" style={{ width: `${prog * 100}%` }} />
+            <div className="h-full bg-gradient-to-r from-accent to-accent-2 transition-[width] duration-1000 ease-linear" style={{ width: `${prog * 100}%` }} />
           </div>
           <div className="mt-2 flex justify-between font-mono text-xs text-mist">
             <span>round #{now ? r.id % 100000 : "—"}</span>
@@ -167,7 +167,7 @@ export function Privacy() {
           <H2>Public odds. <span className="font-serif font-normal italic text-gradient">Private traders.</span></H2>
           <p className="mt-6 max-w-lg text-lg leading-relaxed text-mist">
             On a normal market, every bet is a billboard: whales get copied, winners get front-run, and your history follows
-            your wallet forever. Haze uses zero-knowledge proofs and a shielded pool, so the market sees liquidity, not people.
+            your wallet forever. Primar uses zero-knowledge proofs and a shielded pool, so the market sees liquidity, not people.
           </p>
           <div className="mt-8 flex flex-wrap gap-2">
             {["Zero-knowledge proofs", "Shielded pool", "Relayed transactions", "Proof of innocence"].map((t) => (
@@ -178,7 +178,7 @@ export function Privacy() {
         <Reveal delay={0.15}>
           <div className="glass ring-glow overflow-hidden rounded-3xl">
             <div className="grid grid-cols-[1.1fr_1fr_1fr] border-b border-line px-6 py-4 font-mono text-xs uppercase tracking-wider text-mist">
-              <span>What others see</span><span>Other markets</span><span className="text-haze">Haze</span>
+              <span>What others see</span><span>Other markets</span><span className="text-accent">Primar</span>
             </div>
             {rows.map((r, i) => (
               <motion.div
@@ -192,7 +192,7 @@ export function Privacy() {
                 <span className="text-white/90">{r.k}</span>
                 <span className="font-mono text-down/90">{r.pub}</span>
                 <span className="flex items-center gap-2 text-up">
-                  <span className="inline-block h-3 w-14 rounded-sm bg-gradient-to-r from-haze/60 to-haze-2/40 blur-[3px]" />
+                  <span className="inline-block h-3 w-14 rounded-sm bg-gradient-to-r from-accent/60 to-accent-2/40 blur-[3px]" />
                   <span className="hidden text-xs sm:inline">{r.hz}</span>
                 </span>
               </motion.div>
@@ -254,8 +254,8 @@ const FAQS = [
   { q: "What exactly is private?", a: "Who placed a bet is never visible: bets come from the shielded pool through a relayer. Your side is sealed until betting locks. Stake amounts are visible on-chain, but they are not linked to any wallet." },
   { q: "How are winners paid?", a: "Rounds are parimutuel: everyone on the winning side shares the losing side's stakes in proportion to their stake, minus a 2% protocol fee. If one side is empty, every stake is refunded." },
   { q: "Where do prices come from?", a: "Pyth price feeds on both chains, with Chainlink as a cross-check on BNB Chain. The start and end prices are recorded on-chain for every round." },
-  { q: "Is it live with real money?", a: "Not yet. Haze launches on testnets first while the contracts and zero-knowledge circuits are audited. Mainnet comes after the audit." },
-  { q: "Can privacy be abused?", a: "Haze supports proof of innocence: users can prove their deposit is not linked to sanctioned addresses without revealing who they are." },
+  { q: "Is it live with real money?", a: "Not yet. Primar launches on testnets first while the contracts and zero-knowledge circuits are audited. Mainnet comes after the audit." },
+  { q: "Can privacy be abused?", a: "Primar supports proof of innocence: users can prove their deposit is not linked to sanctioned addresses without revealing who they are." },
 ];
 
 export function FAQ() {
@@ -289,7 +289,7 @@ export function CTA() {
         <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[40px] border border-line px-6 py-24 text-center">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,rgba(123,92,255,.45),transparent_60%),radial-gradient(ellipse_at_bottom_right,rgba(63,208,255,.3),transparent_55%)]" />
           <h2 className="text-[clamp(2.4rem,6vw,5rem)] font-semibold leading-[0.95] tracking-[-0.045em]">
-            Disappear into <span className="font-serif font-normal italic">the haze.</span>
+            Trade the move <span className="font-serif font-normal italic">in private.</span>
           </h2>
           <p className="mx-auto mt-5 max-w-md text-mist">The next 5-minute round is already counting down.</p>
           <Link href="/app" className="mt-10 inline-block rounded-full bg-white px-8 py-4 font-medium text-ink transition hover:scale-[1.04]">Launch app</Link>
@@ -303,7 +303,7 @@ export function Footer() {
   return (
     <footer className="border-t border-line px-4 py-12">
       <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-6 text-sm text-mist md:flex-row">
-        <span>© {new Date().getFullYear()} Haze. Testnet software. Not available where prohibited.</span>
+        <span>© {new Date().getFullYear()} Primar. Testnet software. Not available where prohibited.</span>
         <div className="flex gap-6">
           <a href="#how" className="hover:text-white">How it works</a>
           <a href="#faq" className="hover:text-white">FAQ</a>

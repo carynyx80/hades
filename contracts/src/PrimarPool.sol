@@ -7,9 +7,9 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {PoseidonT3} from "poseidon-solidity/PoseidonT3.sol";
 import {IVerifier} from "./interfaces/IVerifier.sol";
-import {HazeRounds} from "./HazeRounds.sol";
+import {PrimarRounds} from "./PrimarRounds.sol";
 
-/// @title HazePool
+/// @title PrimarPool
 /// @notice Shielded pool for one stablecoin. Funds live as notes `Poseidon(amount, inner)` with
 ///         `inner = Poseidon(secret, nullifier)` in an incremental Merkle tree. Spending a note (to bet or withdraw)
 ///         takes a zero-knowledge proof of membership; it reveals `Poseidon(nullifier, 0)` to stop double spends and
@@ -20,7 +20,7 @@ import {HazeRounds} from "./HazeRounds.sol";
 ///          claim: [claimHash, extDataHash]
 ///         `extDataHash` binds what the proof authorises (recipient, relayer fee, bet details) so a relayer or a
 ///         front-runner cannot redirect it.
-contract HazePool is ReentrancyGuard, AccessControl {
+contract PrimarPool is ReentrancyGuard, AccessControl {
     using SafeERC20 for IERC20;
 
     uint256 public constant FIELD = 21888242871839275222246405745257275088548364400416034343698204186575808495617;
@@ -29,7 +29,7 @@ contract HazePool is ReentrancyGuard, AccessControl {
     uint256 public constant LOCKED = 2 ** 128 - 1;
 
     IERC20 public immutable token;
-    HazeRounds public immutable rounds;
+    PrimarRounds public immutable rounds;
     IVerifier public immutable spendVerifier;
     IVerifier public immutable claimVerifier;
 
@@ -57,7 +57,7 @@ contract HazePool is ReentrancyGuard, AccessControl {
     event PrivateBet(uint256 nullifierHash, uint256 betId);
     event PrivateClaim(uint256 indexed betId, uint256 commitment);
 
-    constructor(address admin, IERC20 token_, HazeRounds rounds_, IVerifier spend_, IVerifier claim_, uint256 minDeposit_) {
+    constructor(address admin, IERC20 token_, PrimarRounds rounds_, IVerifier spend_, IVerifier claim_, uint256 minDeposit_) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
         token = token_;
         rounds = rounds_;
@@ -65,7 +65,7 @@ contract HazePool is ReentrancyGuard, AccessControl {
         claimVerifier = claim_;
         minDeposit = minDeposit_;
 
-        uint256 z = uint256(keccak256("haze")) % FIELD;
+        uint256 z = uint256(keccak256("primar")) % FIELD;
         for (uint8 i = 0; i < DEPTH; i++) {
             zeros[i] = z;
             filledSubtrees[i] = z;
