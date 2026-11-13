@@ -5,6 +5,7 @@ import { ASSETS, type AssetSymbol } from "./markets";
 export type PriceMap = Record<AssetSymbol, { price: number; history: number[]; live: boolean }>;
 
 const HERMES = "https://hermes.pyth.network";
+const API = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
 function initial(): PriceMap {
   return Object.fromEntries(
@@ -33,7 +34,22 @@ export function usePrices(intervalMs = 2000) {
       );
     }
 
+    async function fromApi(): Promise<Partial<Record<AssetSymbol, number>>> {
+      if (!API) return {};
+      try {
+        const r = await fetch(`${API}/prices`);
+        const j = (await r.json()) as Record<string, { price?: number }>;
+        const out: Partial<Record<AssetSymbol, number>> = {};
+        for (const a of ASSETS) if (typeof j[a.symbol]?.price === "number") out[a.symbol] = j[a.symbol].price!;
+        return out;
+      } catch {
+        return {};
+      }
+    }
+
     async function tick() {
+      const api = await fromApi();
+      if (Object.keys(api).length) return apply(api);
       const found = Object.entries(ids.current) as [AssetSymbol, string][];
       let live: Partial<Record<AssetSymbol, number>> = {};
       if (found.length) {
@@ -49,6 +65,10 @@ export function usePrices(intervalMs = 2000) {
           live = {};
         }
       }
+      apply(live);
+    }
+
+    function apply(live: Partial<Record<AssetSymbol, number>>) {
       if (stop) return;
       setPrices((prev) => {
         const next = { ...prev };
