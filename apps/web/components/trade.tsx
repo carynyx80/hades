@@ -117,7 +117,7 @@ export function Trade() {
 
       <div className="mx-auto max-w-7xl px-4 pt-4">
         <div className="rounded-xl border border-haze/20 bg-haze/5 px-4 py-2 text-center text-xs text-haze">
-          Demo mode: contracts aren&apos;t deployed yet. Balance and bets are simulated in your browser; prices are {p.live ? "live from Pyth" : "a demo feed"}.
+          Demo mode: contracts aren&apos;t deployed yet. Balance and bets are simulated in your browser; prices are {p.live ? "live" : "a demo feed"}.
         </div>
       </div>
 

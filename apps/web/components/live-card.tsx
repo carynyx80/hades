@@ -37,7 +37,7 @@ export function LiveCard() {
           </div>
           <div className="flex items-center gap-2 font-mono text-xs text-mist">
             <span className={`h-1.5 w-1.5 rounded-full ${p.live ? "bg-up" : "bg-haze"}`} />
-            {p.live ? "Pyth live" : "Demo feed"} · {tf.label} round #{now ? r.id % 100000 : "—"}
+            {p.live ? "Live prices" : "Demo feed"} · {tf.label} round #{now ? r.id % 100000 : "—"}
           </div>
         </div>
 

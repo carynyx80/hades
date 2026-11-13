@@ -43,4 +43,5 @@ export const env = {
   keeperKey: process.env.KEEPER_PRIVATE_KEY,
   relayerKey: process.env.RELAYER_PRIVATE_KEY,
   hermes: process.env.HERMES_URL || "https://hermes.pyth.network",
+  hermesKey: process.env.HERMES_API_KEY,
 };

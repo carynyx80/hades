@@ -7,7 +7,9 @@ export const history: Record<Asset, { t: number; p: number }[]> = { BTC: [], ETH
 let lastOk = 0;
 
 async function j<T>(path: string): Promise<T> {
-  const r = await fetch(env.hermes + path, { signal: AbortSignal.timeout(8000) });
+  const headers: Record<string, string> = {};
+  if (env.hermesKey) headers.authorization = `Bearer ${env.hermesKey}`;
+  const r = await fetch(env.hermes + path, { headers, signal: AbortSignal.timeout(8000) });
   if (!r.ok) throw new Error(`hermes ${r.status}`);
   return (await r.json()) as T;
 }
@@ -19,9 +21,7 @@ export async function discoverFeeds() {
       const list = await j<{ id: string; attributes: { symbol: string } }[]>(`/v2/price_feeds?query=${a}&asset_type=crypto`);
       const hit = list.find((f) => f.attributes.symbol === `Crypto.${a}/USD`);
       if (hit) ids[a] = "0x" + hit.id.replace(/^0x/, "");
-    } catch (e) {
-      console.warn("feed discovery failed", a, (e as Error).message);
-    }
+    } catch {}
   }
   return ids;
 }
@@ -32,7 +32,61 @@ export function feedIds() {
 
 type Parsed = { id: string; price: { price: string; expo: number; publish_time: number } };
 
+function record(a: Asset, price: number, publishTime: number) {
+  if (!(price > 0)) return;
+  latest[a] = { price, publishTime };
+  const h = history[a];
+  h.push({ t: publishTime, p: price });
+  if (h.length > 600) h.shift();
+}
+
+async function getJson<T>(url: string): Promise<T> {
+  const r = await fetch(url, { signal: AbortSignal.timeout(6000), headers: { "user-agent": "haze-api" } });
+  if (!r.ok) throw new Error(`${new URL(url).host} ${r.status}`);
+  return (await r.json()) as T;
+}
+
+const KRAKEN: Record<Asset, string> = { BTC: "XBTUSD", ETH: "ETHUSD", BNB: "BNBUSD", SOL: "SOLUSD" };
+const GECKO: Record<Asset, string> = { BTC: "bitcoin", ETH: "ethereum", BNB: "binancecoin", SOL: "solana" };
+let geckoAt = 0;
+
+/** Keyless display prices for when Pyth Hermes is unavailable. Settlement still needs Pyth (or the signed oracle). */
+async function fallback(missing: Asset[]) {
+  const now = Math.floor(Date.now() / 1000);
+  await Promise.all(
+    missing.map(async (a) => {
+      try {
+        const k = await getJson<{ error: string[]; result: Record<string, { c: [string] }> }>(`https://api.kraken.com/0/public/Ticker?pair=${KRAKEN[a]}`);
+        const v = Object.values(k.result ?? {})[0];
+        if (v) return record(a, Number(v.c[0]), now);
+      } catch {}
+      if (a !== "BNB") {
+        try {
+          const c = await getJson<{ data: { amount: string } }>(`https://api.coinbase.com/v2/prices/${a}-USD/spot`);
+          return record(a, Number(c.data.amount), now);
+        } catch {}
+      }
+    }),
+  );
+  const still = missing.filter((a) => !latest[a] || latest[a]!.publishTime < now - 5);
+  if (still.length && Date.now() - geckoAt > 15_000) {
+    geckoAt = Date.now();
+    try {
+      const g = await getJson<Record<string, { usd: number }>>(`https://api.coingecko.com/api/v3/simple/price?vs_currencies=usd&ids=${still.map((a) => GECKO[a]).join(",")}`);
+      for (const a of still) if (g[GECKO[a]]) record(a, g[GECKO[a]].usd, now);
+    } catch {}
+  }
+}
+
 export async function poll() {
+  await pollHermes();
+  const fresh = (a: Asset) => latest[a] && Date.now() / 1000 - latest[a]!.publishTime < 15;
+  const missing = ASSETS.filter((a) => !fresh(a));
+  if (missing.length) await fallback(missing);
+  if (ASSETS.every(fresh)) lastOk = Date.now();
+}
+
+async function pollHermes() {
   const found = Object.entries(ids) as [Asset, string][];
   if (!found.length) return;
   try {
@@ -41,17 +95,14 @@ export async function poll() {
     for (const p of r.parsed) {
       const a = found.find(([, id]) => id.slice(2) === p.id.replace(/^0x/, ""))?.[0];
       if (!a) continue;
-      const price = Number(p.price.price) * 10 ** p.price.expo;
-      latest[a] = { price, publishTime: p.price.publish_time };
-      const h = history[a];
-      h.push({ t: p.price.publish_time, p: price });
-      if (h.length > 600) h.shift();
+      record(a, Number(p.price.price) * 10 ** p.price.expo, p.price.publish_time);
     }
-    lastOk = Date.now();
   } catch (e) {
-    console.warn("price poll failed", (e as Error).message);
+    hermesFailures++;
+    if (hermesFailures === 1 || hermesFailures % 300 === 0) console.warn("hermes unavailable, using fallback prices:", (e as Error).message);
   }
 }
+let hermesFailures = 0;
 
 export function pricesHealthy() {
   return Date.now() - lastOk < 30_000;
